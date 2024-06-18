@@ -8,6 +8,8 @@ public class ModModelLayers {
     public static final ModelLayerLocation PYGMYS_LAYER = new ModelLayerLocation(
             new ResourceLocation(OrcasAdditions.MOD_ID, "pygmys_layer"), "main");
 
-
+    private static ModelLayerLocation create(String name) {
+        return new ModelLayerLocation(new ResourceLocation(OrcasAdditions.MOD_ID, name), "main");
+    }
 }
 

@@ -19,6 +19,8 @@ import net.orca.orcasadditions.entity.client.PygmySRenderer;
 import net.orca.orcasadditions.item.OAdditionalItems;
 import org.slf4j.Logger;
 
+import static net.orca.orcasadditions.entity.OAdditionalEntities.register;
+
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(OrcasAdditions.MOD_ID)
 public class OrcasAdditions
@@ -36,7 +38,7 @@ public class OrcasAdditions
         modEventBus.addListener(this::commonSetup);
 
         MinecraftForge.EVENT_BUS.register(this);
-
+        register(modEventBus);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)

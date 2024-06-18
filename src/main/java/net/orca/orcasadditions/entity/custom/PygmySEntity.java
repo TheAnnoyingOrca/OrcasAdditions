@@ -39,7 +39,7 @@ import java.util.List;
 
 public class PygmySEntity extends WaterAnimal {
 
-    private static final EntityDataAccessor<Integer> MOISTNESS_LEVEL = SynchedEntityData.defineId(Dolphin.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> MOISTNESS_LEVEL = SynchedEntityData.defineId(PygmySEntity.class, EntityDataSerializers.INT);
     static final TargetingConditions SWIM_WITH_PLAYER_TARGETING = TargetingConditions.forNonCombat().range(10.0D).ignoreLineOfSight();
 
     public PygmySEntity(EntityType<? extends WaterAnimal> pEntityType, Level pLevel) {
