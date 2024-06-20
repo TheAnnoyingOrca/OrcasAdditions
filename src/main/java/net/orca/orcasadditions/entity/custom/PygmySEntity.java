@@ -1,11 +1,13 @@
 package net.orca.orcasadditions.entity.custom;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -48,6 +50,8 @@ public class PygmySEntity extends WaterAnimal {
         this.lookControl = new SmoothSwimmingLookControl(this, 10);
 
 
+    }
+    protected void handleAirSupply(int pAirSupply) {
     }
     public boolean canBreatheUnderwater() {
         return true;
@@ -97,7 +101,7 @@ public class PygmySEntity extends WaterAnimal {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, (double)1.2F).add(Attributes.ATTACK_DAMAGE, 3.0D);
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.MOVEMENT_SPEED, (double)0.9F).add(Attributes.ATTACK_DAMAGE, 4.0D);
     }
 
     protected PathNavigation createNavigation(Level pLevel) {
@@ -182,6 +186,10 @@ public class PygmySEntity extends WaterAnimal {
         return SoundEvents.DOLPHIN_SWIM;
     }
 
+    protected SoundEvent getSquirtSound() {
+        return SoundEvents.SQUID_SQUIRT;
+    }
+
     protected boolean closeToNextPos() {
         BlockPos blockpos = this.getNavigation().getTargetPos();
         return blockpos != null ? blockpos.closerToCenterThan(this.position(), 12.0D) : false;
@@ -205,27 +213,24 @@ public class PygmySEntity extends WaterAnimal {
         return true;
     }
     static class PygmySSwimWithPlayerGoal extends Goal {
-        private final PygmySEntity dolphin;
+        private final PygmySEntity pygmys;
         private final double speedModifier;
         @Nullable
         private Player player;
 
-        PygmySSwimWithPlayerGoal(PygmySEntity pDolphin, double pSpeedModifier) {
-            this.dolphin = pDolphin;
+        PygmySSwimWithPlayerGoal(PygmySEntity pPygmys, double pSpeedModifier) {
+            this.pygmys = pPygmys;
             this.speedModifier = pSpeedModifier;
             this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
         }
 
-        /**
-         * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-         * method as well.
-         */
+
         public boolean canUse() {
-            this.player = this.dolphin.level().getNearestPlayer(PygmySEntity.SWIM_WITH_PLAYER_TARGETING, this.dolphin);
+            this.player = this.pygmys.level().getNearestPlayer(PygmySEntity.SWIM_WITH_PLAYER_TARGETING, this.pygmys);
             if (this.player == null) {
                 return false;
             } else {
-                return this.player.isSwimming() && this.dolphin.getTarget() != this.player;
+                return this.player.isSwimming() && this.pygmys.getTarget() != this.player;
             }
         }
 
@@ -233,14 +238,14 @@ public class PygmySEntity extends WaterAnimal {
          * Returns whether an in-progress EntityAIBase should continue executing
          */
         public boolean canContinueToUse() {
-            return this.player != null && this.player.isSwimming() && this.dolphin.distanceToSqr(this.player) < 256.0D;
+            return this.player != null && this.player.isSwimming() && this.pygmys.distanceToSqr(this.player) < 256.0D;
         }
 
         /**
          * Execute a one shot task or start executing a continuous task
          */
         public void start() {
-            this.player.addEffect(new MobEffectInstance(MobEffects.DOLPHINS_GRACE, 100), this.dolphin);
+            this.player.addEffect(new MobEffectInstance(MobEffects.DOLPHINS_GRACE, 100), this.pygmys);
         }
 
         /**
@@ -248,22 +253,22 @@ public class PygmySEntity extends WaterAnimal {
          */
         public void stop() {
             this.player = null;
-            this.dolphin.getNavigation().stop();
+            this.pygmys.getNavigation().stop();
         }
 
         /**
          * Keep ticking a continuous task that has already been started
          */
         public void tick() {
-            this.dolphin.getLookControl().setLookAt(this.player, (float)(this.dolphin.getMaxHeadYRot() + 20), (float)this.dolphin.getMaxHeadXRot());
-            if (this.dolphin.distanceToSqr(this.player) < 6.25D) {
-                this.dolphin.getNavigation().stop();
+            this.pygmys.getLookControl().setLookAt(this.player, (float)(this.pygmys.getMaxHeadYRot() + 20), (float)this.pygmys.getMaxHeadXRot());
+            if (this.pygmys.distanceToSqr(this.player) < 6.25D) {
+                this.pygmys.getNavigation().stop();
             } else {
-                this.dolphin.getNavigation().moveTo(this.player, this.speedModifier);
+                this.pygmys.getNavigation().moveTo(this.player, this.speedModifier);
             }
 
             if (this.player.isSwimming() && this.player.level().random.nextInt(6) == 0) {
-                this.player.addEffect(new MobEffectInstance(MobEffects.DOLPHINS_GRACE, 100), this.dolphin);
+                this.player.addEffect(new MobEffectInstance(MobEffects.DOLPHINS_GRACE, 100), this.pygmys);
             }
 
         }
@@ -338,6 +343,29 @@ public class PygmySEntity extends WaterAnimal {
                 itementity.setDeltaMovement((double)(0.3F * -Mth.sin(PygmySEntity.this.getYRot() * ((float)Math.PI / 180F)) * Mth.cos(PygmySEntity.this.getXRot() * ((float)Math.PI / 180F)) + Mth.cos(f1) * f2), (double)(0.3F * Mth.sin(PygmySEntity.this.getXRot() * ((float)Math.PI / 180F)) * 1.5F), (double)(0.3F * Mth.cos(PygmySEntity.this.getYRot() * ((float)Math.PI / 180F)) * Mth.cos(PygmySEntity.this.getXRot() * ((float)Math.PI / 180F)) + Mth.sin(f1) * f2));
                 PygmySEntity.this.level().addFreshEntity(itementity);
             }
+        }
+    }
+    private void spawnInk() {
+        this.playSound(this.getSquirtSound(), this.getSoundVolume(), this.getVoicePitch());
+        ParticleOptions particleoptions = ParticleTypes.SQUID_INK;
+        for (int i = 0; i < 7; ++i) {
+            double d0 = this.random.nextGaussian() * 0.02D;
+            double d1 = this.random.nextGaussian() * 0.02D;
+            double d2 = this.random.nextGaussian() * 0.02D;
+            this.level().addParticle(particleoptions, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), d0, d1, d2);
+        }
+
+    }
+
+    public boolean hurt(DamageSource pSource, float pAmount) {
+        if (super.hurt(pSource, pAmount) && this.getLastHurtByMob() != null) {
+            if (!this.level().isClientSide) {
+                this.spawnInk();
+            }
+
+            return true;
+        } else {
+            return false;
         }
     }
 

@@ -16,6 +16,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.orca.orcasadditions.entity.OAdditionalEntities;
 import net.orca.orcasadditions.entity.client.PygmySRenderer;
+import net.orca.orcasadditions.item.OAdditionalCreativeModeTab;
 import net.orca.orcasadditions.item.OAdditionalItems;
 import org.slf4j.Logger;
 
@@ -34,11 +35,11 @@ public class OrcasAdditions
 
         OAdditionalItems.OADDITIONAL_ITEMS.register(modEventBus);
         OAdditionalEntities.OADDITIONAL_ENTITY_TYPES.register(modEventBus);
+        OAdditionalCreativeModeTab.CREATIVE_MODE_TABS.register(modEventBus);
 
         modEventBus.addListener(this::commonSetup);
 
         MinecraftForge.EVENT_BUS.register(this);
-        register(modEventBus);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)

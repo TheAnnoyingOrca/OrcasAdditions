@@ -14,7 +14,7 @@ public class OAdditionalEntities {
             DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, OrcasAdditions.MOD_ID);
 
     public static final RegistryObject<EntityType<PygmySEntity>> PYGMYS =
-            OADDITIONAL_ENTITY_TYPES.register("pygmys", () -> EntityType.Builder.of(PygmySEntity::new, MobCategory.WATER_CREATURE).sized(2.5f, 1f).build("pygmys"));
+            OADDITIONAL_ENTITY_TYPES.register("pygmys", () -> EntityType.Builder.of(PygmySEntity::new, MobCategory.WATER_CREATURE).sized(1.5f, 0.8f).build("pygmys"));
 
     public static void register(IEventBus eventBus) {
         OADDITIONAL_ENTITY_TYPES.register(eventBus);
